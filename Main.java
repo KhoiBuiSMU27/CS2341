@@ -1,57 +1,73 @@
+import java.util.ArrayList;
+
 public class Main {
 
-    public static void main(String[] args) {
+    public static ArrayList<String> parseCSV(String line)
+    {
+        ArrayList<String> result = new ArrayList<>();
+        StringBuilder currentField = new StringBuilder();
+        boolean inQuotes = false;
 
-        Stack<String> errorLogEntries = new Stack<>();
-        Stack<String> recentErrors = new Stack<>();
-        Queue<String> queue = new Queue<>();
+        for (char c : line.toCharArray()) {
+            if (c == '\"') {
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                result.add(currentField.toString());
+                currentField.setLength(0);
+            } else {
+                currentField.append(c);
+            }
+        }
+        result.add(currentField.toString());
 
-        // Skip the first line of the file
+        return result;
+    }
+
+    public static void main (String[] args)
+    {
+        ArrayList<Product> products = new ArrayList<>();
+        ArrayList<String> productIDs = new ArrayList<>();
+
         StdIn.readLine();
-        while (!StdIn.isEmpty()) {
-            // Read the log file into program
-            String logEntry = StdIn.readLine();
+        while (!StdIn.isEmpty())
+        {
+            String line = StdIn.readLine();
+            ArrayList<String> data = parseCSV(line);
 
-            // Enqueue all log entries into a queue
-            queue.enqueue(logEntry);
+            // Get IDs for the Key
+            String ID = data.get(0);
+            productIDs.add(ID);
+
+            // Other data for the Value
+            String name = data.get(1);
+            if (name.charAt(name.length() - 1) == '\"') { name = name.substring(0, name.length() - 1); }
+            if (name.charAt(0) == '\"') { name = name.substring(1, name.length() - 1); }
+
+            String category = data.get(2);
+            String price = data.get(3);
+
+            // Create a Product object and insert it into an ArrayList
+            Product product = new Product(ID, name, category, price);
+            products.add(product);
         }
 
-        int infoCount = 0, warnCount = 0, errorCount = 0, memoryWarnCount = 0;
-        int dequeueCount = 0;
+        // Insert the products into the Red-Black tree
+        RedBlackBST<String, Product> bst = new RedBlackBST<>();
+        for (int i = 0; i < products.size(); i++)
+            bst.put(productIDs.get(i), products.get(i));
 
-        while (!queue.isEmpty()) {
-            // Dequeue entries one by one until the queue is empty
-            String dequeuedLogEntry = queue.dequeue();
+        // Search a product using its ID and print out its information
+        StdOut.print(bst.get("4c69b61db1fc16e7013b43fc926e502d"));
+        StdOut.print(bst.get("18018b6bc416dab347b1b7db79994afa"));
+        StdOut.print(bst.get("f8c32a45e507a177992973cf0d46d20c"));
 
-            // Implement a stack to store error log entries
-            if (dequeuedLogEntry.contains("ERROR")){ // count ERROR log level
-                errorCount++;
-                errorLogEntries.push(dequeuedLogEntry);
-            }
-            else if (dequeuedLogEntry.contains("WARN")) { // count WARN log level
-                warnCount++;
-                if (dequeuedLogEntry.contains("Memory")) // count Memory warnings
-                    memoryWarnCount++;
-            }
-            else if (dequeuedLogEntry.contains("INFO")) infoCount++; // count INFO log level
+        // Test insertion
+        Product product1 = new Product("abcdefghijklmnopqrstuvwxyz123456", "random product", "test", "$100");
+        bst.put(product1.getID(), product1); // insert a new product
+        StdOut.print(bst.get(product1.getID()));
 
-            dequeueCount++;
-            // A list of the last 100 errors that occurred
-            if ((queue.size() - dequeueCount) < 100)
-                recentErrors.push(dequeuedLogEntry);
-        }
-
-        // Print out the result
-        StdOut.println("INFO(s) count: " + infoCount);
-        StdOut.println("WARN(s) count: " + warnCount);
-        StdOut.println("ERROR(s) count: " + errorCount);
-        StdOut.println("Memory warning(s) count: " + memoryWarnCount);
-
-        StdOut.println("---------------------------------------------------");
-        StdOut.println("Recent errors:");
-        for (String log : recentErrors)
-            StdOut.println(log);
-
+        StdOut.println("-----------------------------------------------");
+        bst.put(productIDs.get(1), products.get(1)); // already exists
     }
 
 }
