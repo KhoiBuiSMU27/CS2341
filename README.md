@@ -34,7 +34,7 @@ ID: 49298944
 		+ Thus, the overall complexity for insertion = O(log n)
 
 
-										How the tree remains balanced after multiple operations
+				How the tree remains balanced after multiple operations
 
 1. How Balancing Works
 	- After insertion or deletion, violations of Red-Black properties (e.g., two consecutive red nodes) are corrected through recoloring       and rotations (left or right).
