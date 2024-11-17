@@ -23,12 +23,15 @@ public class Main {
         return result;
     }
 
-    public static void main (String[] args)
+    public static void main(String[] args)
     {
         ArrayList<Product> products = new ArrayList<>();
         ArrayList<String> productIDs = new ArrayList<>();
 
+        // Skip the header line
         StdIn.readLine();
+
+        // Read and parse each line of the CSV input
         while (!StdIn.isEmpty())
         {
             String line = StdIn.readLine();
@@ -56,10 +59,14 @@ public class Main {
         for (int i = 0; i < products.size(); i++)
             bst.put(productIDs.get(i), products.get(i));
 
-        // Search a product using its ID and print out its information
-        StdOut.print(bst.get("4c69b61db1fc16e7013b43fc926e502d"));
-        StdOut.print(bst.get("18018b6bc416dab347b1b7db79994afa"));
-        StdOut.print(bst.get("f8c32a45e507a177992973cf0d46d20c"));
+        // Search products using command line arguments
+        for (String productID : args) {
+            Product found = bst.get(productID);
+            if (found != null)
+                StdOut.print(found);
+            else
+                StdOut.println("Product not found with ID: " + productID);
+        }
 
         // Test insertion
         Product product1 = new Product("abcdefghijklmnopqrstuvwxyz123456", "random product", "test", "$100");
@@ -69,5 +76,4 @@ public class Main {
         StdOut.println("-----------------------------------------------");
         bst.put(productIDs.get(1), products.get(1)); // already exists
     }
-
 }
